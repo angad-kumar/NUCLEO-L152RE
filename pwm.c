@@ -1,32 +1,27 @@
-void pwm_test()
+void pwm_gpio_init()
 {
-	// PA3 and Tim2_ch4
+	// Description: Pin:PB8, AFR = 3(0011), MODER = 10 , TIM10_CH1
+	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
 
-	//Enable clock for GPIO
-	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+	GPIOB->MODER &= ~GPIO_MODER_MODER8_0;
+	GPIOB->MODER |= GPIO_MODER_MODER8_1;
 
-	// set moder for GPIO
-	GPIOA->MODER &= ~GPIO_MODER_MODER6_1;
-	GPIOA->MODER |= GPIO_MODER_MODER6_0;
-
-	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
-	TIM3->PSC = 1599;
-	TIM3->ARR = 9999;
-	TIM3->CNT = 0;
-	TIM3->CR1 = 1;
-
-	LED_ON
-	T_ON
-	while(1)
-	{
-		LED_ON
-		GPIOA->BSRRH|= GPIO_BSRR_BS_6;
-//		delay(1000);
-		while(!(TIM3->SR & 1));
-//		GPIOA->ODR ^= GPIO_ODR_ODR_3;
-		LED_OFF;
-		GPIOA->BSRRL|= GPIO_BSRR_BS_6;
-//		delay(1000);
-	}
+	GPIOB->AFR[1] = 0x00000003;
 
 }
+
+void pwm_init()
+{
+	RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
+	//up counter
+	TIM10->CNT = 0;
+	TIM10->ARR = 65535; // frequancy setup
+	TIM10->CCMR1 = 0X0060;
+	TIM10->CCER |= TIM_CCER_CC1E;
+	TIM10->PSC = 0;
+	TIM10->CCR1 = 32767; //duty cycle setup
+	TIM10->CR1 |= TIM_CR1_CEN;
+
+
+}
+
